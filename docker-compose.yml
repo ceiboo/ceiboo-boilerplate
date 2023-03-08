@@ -1,0 +1,71 @@
+version: "3.7"
+services:
+    ceibooapi:
+        build:
+            args:
+                user: ceibooapi
+                uid: 1000
+            context: ./
+            dockerfile: ceibooapiDockerfile
+        image: ceiboo-php
+        container_name: ceiboo-php
+        restart: unless-stopped
+        working_dir: /var/www/
+        volumes:
+            - ./backend/api/:/var/www/
+            - ./.docker/phpmyadmin/:/opt/phpmyadmin/
+        networks:
+            ceiboo-net:
+                ipv4_address: 172.10.2.44
+
+    ceibooboard:
+        build:
+            context: ./
+            dockerfile: ceibooboardDockerfile
+        image: ceiboo-board
+        container_name: ceiboo-board
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./frontend/board:/var/www:delegated
+        networks:
+            ceiboo-net:
+                ipv4_address: 172.10.2.43
+
+    mysql-api:
+        image: mysql:8.0
+        container_name: ceiboo-mysql
+        restart: unless-stopped
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+            MYSQL_DATABASE: ceiboo_api
+            MYSQL_ROOT_PASSWORD: g1ht_Pcn53PN
+            MYSQL_PASSWORD: pN34c0l0_22
+            MYSQL_USER: admin
+        volumes:
+            - ./.storage/mysql:/var/lib/mysql
+        networks:
+            ceiboo-net:
+                ipv4_address: 172.10.2.42
+
+    nginx:
+        image: nginx:alpine
+        container_name: ceiboo-nginx
+        restart: unless-stopped
+        ports:
+            - 80:80
+        volumes:
+            - ./backend/api:/var/www
+            - ./.docker/nginx/:/etc/nginx/conf.d/
+            - ./.docker/phpmyadmin/:/opt/phpmyadmin/
+        networks:
+            ceiboo-net:
+                ipv4_address: 172.10.2.41
+
+networks:
+    ceiboo-net:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.10.2.0/23

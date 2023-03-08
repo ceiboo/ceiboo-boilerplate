@@ -1,0 +1,6 @@
+/backend/api/public/storage
+/backend/api/storage/*.key
+/backend/api/vendor
+/backend/api/.env
+/backend/api/.env.backup
+/.storage/

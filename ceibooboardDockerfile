@@ -1,0 +1,18 @@
+FROM node:latest
+
+RUN mkdir -p /var/www
+WORKDIR /var/www
+
+RUN npm i npm@latest -g
+
+WORKDIR /var
+COPY frontend/board/package.json frontend/board/package-lock.json* ./
+RUN npm install && npm cache clean --force
+ENV PATH /var/node_modules/.bin:$PATH
+
+WORKDIR /var/www
+COPY frontend/board /var/www
+
+CMD ["npm", "start"]
+
+EXPOSE 3000
